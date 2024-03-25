@@ -5,6 +5,72 @@
 using namespace std;
 using namespace std::chrono;
 
+
+
+
+class RC4 {
+private:
+    std::vector<unsigned char> S;
+    int i, j;
+
+    void ksa(const std::vector<unsigned char>& key) {
+        S.resize(256);
+        for (int i = 0; i < 256; ++i)
+            S[i] = i;
+
+        j = 0;
+        for (int i = 0; i < 256; ++i) {
+            j = (j + S[i] + key[i % key.size()]) % 256;
+            std::swap(S[i], S[j]);
+        }
+    }
+
+    unsigned char prga() {
+        i = (i + 1) % 256;
+        j = (j + S[i]) % 256;
+        std::swap(S[i], S[j]);
+        return S[(S[i] + S[j]) % 256];
+    }
+
+public:
+    RC4(const std::vector<unsigned char>& key) {
+        ksa(key);
+        i = j = 0;
+    }
+
+    std::vector<unsigned char> encrypt(const std::vector<unsigned char>& data) {
+        std::vector<unsigned char> result;
+        for (unsigned char byte : data)
+            result.push_back(byte ^ prga());
+        return result;
+    }
+
+    // Decryption is the same as encryption
+    std::vector<unsigned char> decrypt(const std::vector<unsigned char>& data) {
+        return encrypt(data);
+    }
+};
+
+
+double TimeToEncrypt_RC4(const vector<unsigned char>& plaintext, const vector<unsigned char>& key) {
+    // Start measuring time
+    auto start = high_resolution_clock::now();
+
+    // Call encryption function
+
+
+    RC4 rc4(key);
+
+    vector<unsigned char> ciphertext = rc4.encrypt(plaintext);
+
+    // Stop measuring time
+    auto stop = high_resolution_clock::now();
+
+    // Calculate duration in milliseconds
+    duration<double, milli> duration_ms = stop - start;
+    return duration_ms.count(); // Return time in milliseconds
+}
+
 // Define AES S-box
 const unsigned char sbox[256] = {
     0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
@@ -218,7 +284,7 @@ vector<unsigned char> InputPlaintext() {
 }
 
 
-double TimeToEncrypt(const vector<unsigned char>& plaintext, const vector<unsigned char>& key, void (*EncryptFunction)(const vector<unsigned char>&, const vector<unsigned char>&,vector<unsigned char>&)) {
+double TimeToEncrypt_AES(const vector<unsigned char>& plaintext, const vector<unsigned char>& key, void (*EncryptFunction)(const vector<unsigned char>&, const vector<unsigned char>&,vector<unsigned char>&)) {
     // Start measuring time
     auto start = high_resolution_clock::now();
 
@@ -234,6 +300,8 @@ double TimeToEncrypt(const vector<unsigned char>& plaintext, const vector<unsign
     return duration_ms.count(); // Return time in milliseconds
 }
 
+
+
 int main() {
   // Example usage
 
@@ -246,19 +314,24 @@ int main() {
 
   AES_Encrypt(plaintext, key, ciphertext);
 
-  cout << "Plain Text: "<<plaintext.size()<<endl;
-  for (int i = 0; i < plaintext.size(); ++i) {
-    cout << (int)plaintext[i] << " ";
-  }
-  cout << endl;
+  // cout << "Plain Text: "<<plaintext.size()<<endl;
+  // for (int i = 0; i < plaintext.size(); ++i) {
+  //   cout << (int)plaintext[i] << " ";
+  // }
+  // cout << endl;
 
-  cout << "Cipher Text: "<< ciphertext.size()<<endl;
-  for (int i = 0; i < ciphertext.size(); ++i) {
-    cout << (int)ciphertext[i] << " ";
-  }
+  // cout << "Cipher Text: "<< ciphertext.size()<<endl;
+  // for (int i = 0; i < ciphertext.size(); ++i) {
+  //   cout << (int)ciphertext[i] << " ";
+  // }
+
+  cout << "=================================================================================="<< endl<<endl;
+  double timetaken_RC4 = TimeToEncrypt_RC4(plaintext, key);
+  cout<< "RC4 - Time taken to encrypt plaintext: "<< timetaken_RC4<< " miliseconds" << endl;
+
   cout << endl;
-  double timetaken = TimeToEncrypt(plaintext, key, AES_Encrypt);
-  cout<< "Time taken to encrypt plaintext: "<< timetaken<< " miliseconds" << endl;
+  double timetaken_AES = TimeToEncrypt_AES(plaintext, key, AES_Encrypt);
+  cout<< "AES - Time taken to encrypt plaintext: "<< timetaken_AES<< " miliseconds" << endl;
 
   return 0;
 }
