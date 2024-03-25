@@ -5,8 +5,9 @@ this only a normal assignment
 - Tìm hiểu về thuật toán DES và AES theo danh sách đính kèm: https://husteduvn.sharepoint.com/:x:/s/Antonthngtin-E9K66/EUKCUcdzROdDrWGjRuNQbwABMyPnLET5xAx-XULgmVw3fw?e=vcHdYc
 - Yêu cầu: Tìm hiểu về từng thành phần trong thuật toán, mô phỏng giải thuật so sánh tốc độ mã hóa trên cùng một file với RC4  
 
+COMMAND
 =================================
-command to run this file: 
+
     g++ -o mearsure_time.exe AES.cpp
     ./mearsure_time.exe 
 
